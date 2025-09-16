@@ -1,0 +1,1461 @@
+// Простий i18n з 4 мовами: es (default), uk, ca, en.
+// Зберігає вибір мови у файловій БД (app_prefs.json) через storageService
+// та дублює у localStorage як fallback для веб/розробки.
+
+import { useEffect, useState } from 'react';
+import { getData, saveData } from '../services/storageService';
+
+// ---------- ВНУТРІШНІ ДОПОМОЖНІ ---------------------------------------------
+const FALLBACK_LANG = 'es';
+const STORAGE_KEY = 'lang';
+
+function softGet(obj, key) { return obj && Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : undefined; }
+
+const STR = {
+    es: {
+    // app / navegación
+    app_title: 'LainsaApp',
+    app_subtitle: 'Production Manager',
+    brand: 'LAINSA',
+    hello_name: '¡Hola, {name}!',
+    login: 'Iniciar Sesión',
+    nav_panel: 'Panel',
+    nav_form: 'Formulario (turno)',
+    nav_open_shift: 'Abrir turno',
+    nav_analytics: 'Analítica',
+    nav_machines: 'Máquinas',
+    nav_settings: 'Ajustes',
+    nav_archive: 'Archivo',
+    nav_reports: 'Reportes',
+    nav_users: 'Usuarios',
+    nav_about: 'Acerca de',
+    nav_logout: 'Salir',
+    nav_equipment: 'Equipamiento',
+    nav_maintenance_log: 'Registro de Mantenimiento',
+    nav_maintenance_calendar: 'Calendario de Mantenimiento',
+
+    // roles / headers
+    panel_operator: 'Panel del Operario',
+    panel_supervisor: 'Panel del Supervisor',
+    panel_technician: 'Panel del Técnico',
+    
+    // DashboardOperator & Shift Actions
+    quick_nav: 'Navegación Rápida',
+    shift_summary: 'Resumen del Turno Actual',
+    production_total: 'Producción Total (Túnel)',
+    rejection_total: 'Rechazo Total (Túnel)',
+    btn_close_shift: 'Cerrar Turno',
+    confirm_close_shift: '¿Estás seguro de que quieres cerrar el turno actual?',
+    alert_shift_closed: 'Turno cerrado y guardado.',
+    error_closing_shift: 'Ocurrió un error al cerrar el turno.',
+    current_shift_status: 'Estado del Turno Actual',
+    no_active_shift: 'No hay un turno activo',
+
+    // botones rápidos
+    btn_open_shift: 'Abrir turno',
+    btn_form: 'Formulario (turno)',
+    btn_analytics: 'Analítica',
+    btn_machines: 'Máquinas',
+
+    // estado de turno
+    shift_open: 'Abierto',
+    shift_closed: 'Cerrado',
+    shift_label: 'Turno',
+
+    // KPI resumen
+    kpi_avg: 'KPI medio (kg/h)',
+    kpi_total_kg: 'Peso total (kg)',
+    kpi_total_hours: 'Horas totales',
+
+    // hoy
+    today: 'Hoy',
+    kg: 'Kg',
+    hours: 'Horas',
+    kgh: 'Kg/h',
+
+    // filtros genéricos
+    params: 'Parámetros',
+    period: 'Período',
+    period_day: 'Días',
+    period_week: 'Semanas (ISO)',
+    start: 'Inicio',
+    end: 'Fin',
+    shift_hours: 'Duración del turno (h)',
+    shift_hours_hint: 'Se usa si el registro no tiene horas',
+
+    // charts (por si потрібно)
+    chart_shift: 'Comparación de turnos (kg/h)',
+    chart_trend: 'Tendencia de KPI total (kg/h)',
+    maniana: 'Kg/h Mañana',
+    tarde: 'Kg/h Tarde',
+    total: 'Kg/h Total',
+
+    // mantenimiento
+    upcoming_maint: 'Próximos mantenimientos',
+    no_tasks: 'No hay tareas programadas',
+    machine: 'Máquina',
+    due: 'Fecha',
+
+    // EXPORT KPI
+    export_title: 'KPI de Producción',
+    export_period: 'Período',
+    export_generated: 'Generado',
+    col_label: 'Etiqueta',
+    col_kgh_maniana: 'Kg/h Mañana',
+    col_kgh_tarde: 'Kg/h Tarde',
+    col_kgh_total: 'Kg/h Total',
+    col_kg_total: 'Kg Totales',
+    col_hours_total: 'Horas Totales',
+
+    // settings / backup
+    settings_lang_title: 'Idioma de la aplicación',
+    settings_lang_note: 'El idioma se guarda en preferencias y se aplica a todo el interfaz.',
+    backup_title: 'Copia de seguridad',
+    backup_create: 'Crear copia (.json)',
+    backup_restore: 'Restaurar desde archivo',
+    backup_note: 'La copia incluye los datos principales (registros, mantenimiento, máquinas, clientes, usuarios, turno, preferencias).',
+    environment: 'Entorno',
+    environment_electron: 'Aplicación de escritorio (Electron)',
+    environment_web: 'Navegador web',
+    data_preview: 'Vista previa de datos',
+    key: 'Clave',
+    items: 'Elementos',
+    backup_error_save: 'No se pudo guardar el archivo.',
+    import_success: 'Datos importados correctamente.',
+    import_error: 'Error al importar. Asegúrate de seleccionar un archivo de copia válido.',
+
+    // idiomas
+    lang_label: 'Idioma',
+    lang_es: 'Español',
+    lang_uk: 'Ucraniano',
+    lang_ca: 'Català',
+    lang_en: 'English',
+
+    // common (для нових сторінок)
+    common_loading: 'Cargando…',
+    common_refresh: 'Actualizar',
+    common_loadError: 'No se pudo cargar',
+    common_back: 'Volver',
+    common_all: 'Todos',
+    common_save: 'Guardar',
+    common_cancel: 'Cancelar',
+    common_description: 'Descripción',
+    common_technician: 'Técnico',
+
+    // labels_* (універсальні заголовки таблиць/карток)
+    labels_date: 'Fecha',
+    labels_shift: 'Turno',
+    labels_operators: 'Operadores',
+    labels_operator: 'Operador',
+    labels_client: 'Cliente',
+    labels_program: 'Programa',
+    labels_machine: 'Máquina',
+    labels_kg: 'Kg',
+    labels_hours: 'Horas',
+    labels_kgh: 'Kg/h',
+    labels_cycles: 'Ciclos',
+    labels_rejectKg: 'Rechazo (kg)',
+    labels_notes: 'Notas',
+    labels_actions: 'Acciones',
+
+    // filters_* (для Archive/Reports)
+    filters_from: 'Desde',
+    filters_to: 'Hasta',
+    filters_search: 'Buscar',
+    filters_placeholder: 'id, operador, cliente, máquina, notas…',
+
+    // actions_*
+    actions_view: 'Ver',
+    actions_print: 'Imprimir',
+    actions_exportPdf: 'Exportar PDF',
+    actions_exportXlsx: 'Exportar Excel',
+
+    // ARCHIVE
+    archive_title: 'Archivo',
+    archive_subtitle: 'Vista rápida, filtros, exportación',
+    archive_selectPage: 'Seleccionar página',
+    archive_unselectPage: 'Quitar selección',
+    archive_exportExcelSel: 'Exportar seleccionados (Excel)',
+    archive_exportPdfSel: 'Exportar seleccionados (PDF)',
+    archive_selected: 'Seleccionados',
+    archive_empty: 'No hay resultados para los filtros',
+    archive_pdfTitle: 'Registro de Producción',
+    archive_printTitle: 'Imprimir Registro',
+    archive_sheetName: 'Archivo',
+    archive_record: 'Registro',
+
+    // VIEW
+    view_title: 'Registro',
+    view_titlePdf: 'Registro de Producción',
+    view_printTitle: 'Imprimir Registro',
+    view_notFound: 'No se encontró el registro',
+    view_kpi: 'Indicadores',
+    view_start: 'Inicio',
+    view_end: 'Fin',
+    view_openMachine: 'Abrir detalles de la máquina',
+    view_sheetName: 'Registro',
+
+    // REPORTS
+    reports_title: 'Reportes',
+    reports_subtitle: 'Resumen y análisis por período',
+    reports_period: 'Período',
+    reports_records: 'Registros',
+    reports_summary: 'Resumen',
+    reports_byShift: 'Por turnos',
+    reports_operators: 'Operadores',
+    reports_topKg: 'Top-5 por Kg',
+    reports_topKgh: 'Top-5 por Kg/h',
+    reports_byMachine: 'Por máquinas',
+    reports_byProgram: 'Por programas',
+    reports_hint: 'Cambia los filtros para recalcular los datos al instante',
+
+    // ABOUT
+    about_title: 'Acerca de la aplicación',
+    about_subtitle: 'Información de la versión y créditos',
+    about_version: 'Versión',
+    about_environment: 'Entorno',
+    about_company_type: 'Software para lavanderías',
+    about_author: 'Autor',
+    about_author_name: 'Serhii Solodukha',
+    about_company: 'Compañía',
+    about_company_name: 'SVH Group UA — LAVANDERIA INSULAR SL (LAINSA)',
+    about_contact: 'Contacto',
+    about_website: 'Sitio web',
+    about_changelog: 'Novedades',
+    about_hint: 'La información técnica puede ayudar a diagnosticar problemas.',
+    about_copy: 'Copiar diagnóstico',
+    about_save: 'Guardar diagnóstico',
+    about_copied: 'Copiado al portapapeles',
+    about_copy_fail: 'No se pudo copiar',
+    about_licenses_title: 'Licencias de bibliotecas',
+    about_licenses_desc: 'Lista generada a partir de package.json',
+    about_dep_runtime: 'Dependencias',
+    about_dep_dev: 'Dependencias de desarrollo',
+    about_dep_name: 'Paquete',
+    about_dep_ver: 'Versión',
+
+    // CALENDAR
+    calendar_today: 'Hoy',
+    calendar_month: 'Mes',
+    calendar_week: 'Semana',
+    calendar_day: 'Día',
+    calendar_agenda: 'Agenda',
+    calendar_next: '>',
+    calendar_previous: '<',
+    calendar_no_events: 'No hay eventos en este rango.',
+
+    // MAINTENANCE MODULE
+    equipment_title: 'Lista de Equipamiento',
+    equipment_add: 'Añadir Equipamiento',
+    equipment_col_name: 'Nombre',
+    equipment_col_type: 'Tipo/Categoría',
+    equipment_col_model: 'Modelo',
+    equipment_col_location: 'Ubicación',
+    equipment_dialog_edit_title: 'Editar Equipamiento',
+    equipment_dialog_add_title: 'Añadir Nuevo Equipamiento',
+    equipment_dialog_type_placeholder: 'Tipo (ej. Secadora, Plancha)',
+    confirm_delete_equipment: '¿Estás seguro de que quieres eliminar este equipamiento?',
+
+    maintlog_title: 'Registro de Mantenimiento',
+    maintlog_add_entry: 'Añadir Registro',
+    maintlog_col_event_type: 'Tipo de Trabajo',
+    maintlog_col_next_service: 'Próximo Mantenimiento',
+    maintlog_dialog_title: 'Nuevo Registro en el Diario',
+    maintlog_dialog_desc_placeholder: 'Descripción del trabajo realizado *',
+    maintlog_dialog_next_service_date: 'Fecha del próximo Mantenimiento',
+    maintlog_validation_error: 'Por favor, seleccione el equipamiento y añada una descripción.',
+    maintlog_event_type_planned: 'Mantenimiento Planificado',
+    maintlog_event_type_repair: 'Reparación',
+    maintlog_event_type_cleaning: 'Limpieza',
+    maintlog_event_type_diagnostics: 'Diagnóstico',
+    maintlog_event_type_other: 'Otro',
+
+    // STAFF MODULE
+    nav_staff: 'Personal',
+    nav_staff_directory: 'Directorio de Personal',
+    staff_directory_title: 'Directorio de Personal',
+    staff_add: 'Añadir Empleado',
+    staff_edit: 'Editar Empleado',
+    staff_col_name: 'Nombre Completo',
+    staff_col_department: 'Departamento',
+    staff_col_position: 'Cargo',
+    staff_col_status: 'Estado',
+    staff_status_active: 'Activo',
+    staff_status_inactive: 'Inactivo',
+    confirm_delete_staff: '¿Estás seguro de que quieres eliminar a este empleado?',
+
+    // STAFF ROSTER
+    nav_staff_roster: 'Horario del Personal',
+    roster_title: 'Horario Semanal del Personal',
+    roster_week_of: 'Semana del',
+    roster_col_employee: 'Empleado',
+    roster_col_mon: 'Lunes',
+    roster_col_tue: 'Martes',
+    roster_col_wed: 'Miércoles',
+    roster_col_thu: 'Jueves',
+    roster_col_fri: 'Viernes',
+    roster_col_sat: 'Sábado',
+    roster_col_sun: 'Domingo',
+    roster_select_placeholder: 'Asignar...',
+    roster_export_pdf: 'Exportar a PDF',
+
+    // TECHNICIAN REPORT
+    nav_tech_report: 'Reporte Técnico Diario',
+    tech_report_title: 'Reporte Técnico Diario',
+    tech_report_start_today: 'Iniciar Reporte para Hoy',
+    tech_report_continue_today: 'Continuar Reporte de Hoy',
+    tech_report_no_report: 'No hay reporte activo para hoy.',
+    tech_report_existing_report: 'Ya existe un reporte para hoy.',
+
+    // TECH REPORT FORM
+    tech_form_title: 'Reporte Técnico Diario',
+    tech_form_tab_calderas: 'Calderas y Aguas',
+    field_hora: 'Hora',
+    field_nivel_agua: 'Nivel de Agua (Depósito)',
+    field_presion: 'Presión (Bar)',
+    field_temp_acs: 'Temp. ACS (°C)',
+    field_dureza: 'Dureza (ppm)',
+    field_cloro: 'Cloro (ppm)',
+    field_ph: 'pH',
+    field_conductividad: 'Conductividad (µS/cm)',
+    field_nivel_sal: 'Nivel de Sal (%)',
+    field_contador: 'Contador',
+    tech_form_tab_introductor: 'Intro. Piezas Pequeñas',
+    field_day: 'Día',
+    field_via: 'VÍA',
+    field_enter_data: 'Introduzca datos...',
+    tech_form_tab_hibrida: 'Máquina Híbrida',
+    field_piezas_grandes: 'Piezas Grandes',
+    section_trabajadores: 'Trabajadores Asignados',
+    labels_kpi: 'Indicadores de Productividad',
+    tech_form_tab_kannegiesser: 'Kannegiesser',
+    field_pieza1: 'PIEZA 1 (ALFOMBRIN)',
+    field_pieza2: 'PIEZA 2 (LAVABO / GRANDES)',
+    field_pieza3: 'PIEZA 3 (GRANDES)',
+    field_pieza4: 'PIEZA 4 (GRANDES)',
+    section_trabajadores: 'Trabajadores', // Можна перевикористати
+    // KANNEGIESSER TAB
+    kannegiesser_machine_no: 'Máquina #',
+    kannegiesser_worker_no: 'Trabajador',
+    
+    // AUTH PAGES
+    login_error: 'Usuario o contraseña incorrectos',
+    password_label: 'Contraseña',
+    register_link: 'Registrar nuevo usuario',
+    register_title: 'Registro',
+    role_label: 'Rol',
+    register_button: 'Registrar',
+    login_link: '¿Ya tienes una cuenta? Inicia sesión',
+    auth_license_link: 'Ver acuerdo de licencia',
+
+  },
+
+  uk: {
+    app_title: 'LainsaApp',
+    app_subtitle: 'Менеджер виробництва',
+    brand: 'LAINSA',
+    hello_name: 'Привіт, {name}!',
+    login: 'Увійти',
+    nav_panel: 'Панель',
+    nav_form: 'Форма (зміна)',
+    nav_open_shift: 'Відкрити зміну',
+    nav_analytics: 'Аналітика',
+    nav_machines: 'Машини',
+    nav_settings: 'Налаштування',
+    nav_archive: 'Архів',
+    nav_reports: 'Звіти',
+    nav_users: 'Користувачі',
+    nav_about: 'Про застосунок',
+    nav_logout: 'Вийти',
+    nav_equipment: 'Обладнання',
+    nav_maintenance_log: 'Журнал робіт',
+    nav_maintenance_calendar: 'Календар ТО',
+    panel_operator: 'Панель оператора',
+    panel_supervisor: 'Панель супервізора',
+    panel_technician: 'Панель техніка',
+    quick_nav: 'Швидка навігація',
+    shift_summary: 'Підсумки поточної зміни',
+    production_total: 'Загальне виробництво (Тунель)',
+    rejection_total: 'Загальний брак (Тунель)',
+    btn_close_shift: 'Закрити зміну',
+    confirm_close_shift: 'Ви впевнені, що хочете закрити поточну зміну?',
+    alert_shift_closed: 'Зміну закрито та збережено.',
+    error_closing_shift: 'Сталася помилка при закритті зміни.',
+    current_shift_status: 'Статус поточної зміни',
+    no_active_shift: 'Активної зміни немає',
+    btn_open_shift: 'Відкрити зміну',
+    btn_form: 'Форма (зміна)',
+    btn_analytics: 'Аналітика',
+    btn_machines: 'Машини',
+    shift_open: 'Відкрита',
+    shift_closed: 'Закрита',
+    shift_label: 'Зміна',
+    kpi_avg: 'Середній KPI (кг/год)',
+    kpi_total_kg: 'Загальна вага (кг)',
+    kpi_total_hours: 'Загальні години',
+    today: 'Сьогодні',
+    kg: 'Кг',
+    hours: 'Години',
+    kgh: 'Кг/год',
+    params: 'Параметри',
+    period: 'Період',
+    period_day: 'Дні',
+    period_week: 'Тижні (ISO)',
+    start: 'Початок',
+    end: 'Кінець',
+    shift_hours: 'Тривалість зміни (год)',
+    shift_hours_hint: 'Використовується, якщо у записі немає часу',
+    chart_shift: 'Порівняння змін (кг/год)',
+    chart_trend: 'Загальний тренд KPI (кг/год)',
+    maniana: 'Кг/год Ранкова',
+    tarde: 'Кг/год Вечірня',
+    total: 'Кг/год Загальна',
+    upcoming_maint: 'Найближче обслуговування',
+    no_tasks: 'Немає запланованих робіт',
+    machine: 'Машина',
+    due: 'Дата',
+    export_title: 'KPI виробництва',
+    export_period: 'Період',
+    export_generated: 'Згенеровано',
+    col_label: 'Мітка',
+    col_kgh_maniana: 'Кг/год Ранкова',
+    col_kgh_tarde: 'Кг/год Вечірня',
+    col_kgh_total: 'Кг/год Загальна',
+    col_kg_total: 'Кг Разом',
+    col_hours_total: 'Годин Разом',
+    settings_lang_title: 'Мова застосунку',
+    settings_lang_note: 'Мова зберігається в налаштуваннях і застосовується до всього інтерфейсу.',
+    backup_title: 'Резервна копія',
+    backup_create: 'Створити копію (.json)',
+    backup_restore: 'Відновити з файлу',
+    backup_note: 'Копія містить основні дані (записи, обслуговування, машини, клієнти, користувачі, зміна, налаштування).',
+    environment: 'Середовище',
+    environment_electron: 'Настільна програма (Electron)',
+    environment_web: 'Веб-браузер',
+    data_preview: 'Попередній перегляд даних',
+    key: 'Ключ',
+    items: 'Записів',
+    backup_error_save: 'Не вдалося зберегти файл.',
+    import_success: 'Дані успішно імпортовано.',
+    import_error: 'Помилка імпорту. Переконайтеся, що обрано правильний файл резервної копії.',
+    lang_label: 'Мова',
+    lang_es: 'Іспанська',
+    lang_uk: 'Українська',
+    lang_ca: 'Каталонська',
+    lang_en: 'Англійська',
+    common_loading: 'Завантаження…',
+    common_refresh: 'Оновити',
+    common_loadError: 'Не вдалося завантажити',
+    common_back: 'Назад',
+    common_all: 'Всі',
+    common_save: 'Зберегти',
+    common_cancel: 'Скасувати',
+    common_description: 'Опис',
+    common_technician: 'Технік',
+    labels_date: 'Дата',
+    labels_shift: 'Зміна',
+    labels_operators: 'Оператори',
+    labels_operator: 'Оператор',
+    labels_client: 'Клієнт',
+    labels_program: 'Програма',
+    labels_machine: 'Машина',
+    labels_kg: 'Kg',
+    labels_hours: 'Год',
+    labels_kgh: 'Kg/h',
+    labels_cycles: 'Цикли',
+    labels_rejectKg: 'Брак (кг)',
+    labels_notes: 'Нотатки',
+    labels_actions: 'Дії',
+    filters_from: 'З дати',
+    filters_to: 'По дату',
+    filters_search: 'Пошук',
+    filters_placeholder: 'id, оператор, клієнт, машина, нотатки…',
+    actions_view: 'Перегляд',
+    actions_print: 'Друк',
+    actions_exportPdf: 'Експорт PDF',
+    actions_exportXlsx: 'Експорт Excel',
+    archive_title: 'Архів',
+    archive_subtitle: 'Швидкий перегляд, фільтри, експорт',
+    archive_selectPage: 'Обрати сторінку',
+    archive_unselectPage: 'Зняти вибір',
+    archive_exportExcelSel: 'Експорт вибраних (Excel)',
+    archive_exportPdfSel: 'Експорт вибраних (PDF)',
+    archive_selected: 'Вибрано',
+    archive_empty: 'Нічого не знайдено за вибраними фільтрами',
+    archive_pdfTitle: 'Реєстр виробництва',
+    archive_printTitle: 'Друк запису',
+    archive_sheetName: 'Архів',
+    archive_record: 'Запис',
+    view_title: 'Запис',
+    view_titlePdf: 'Реєстр виробництва',
+    view_printTitle: 'Друк запису',
+    view_notFound: 'Запис не знайдено',
+    view_kpi: 'Показники',
+    view_start: 'Початок',
+    view_end: 'Кінець',
+    view_openMachine: 'Відкрити деталі машини',
+    view_sheetName: 'Запис',
+    reports_title: 'Звіти',
+    reports_subtitle: 'Підсумки та аналітика за період',
+    reports_period: 'Період',
+    reports_records: 'Записів',
+    reports_summary: 'Підсумок',
+    reports_byShift: 'За змінами',
+    reports_operators: 'Оператори',
+    reports_topKg: 'Топ-5 за кг',
+    reports_topKgh: 'Топ-5 за кг/год',
+    reports_byMachine: 'За машинами',
+    reports_byProgram: 'За програмами',
+    reports_hint: 'Змініть фільтри — і дані одразу перерахуються',
+    about_title: 'Про застосунок',
+    about_subtitle: 'Відомості про версію та кредити',
+    about_version: 'Версія',
+    about_environment: 'Середовище',
+    about_company_type: 'ПЗ для пралень',
+    about_author: 'Автор',
+    about_author_name: 'Serhii Solodukha',
+    about_company: 'Компанія',
+    about_company_name: 'SVH Group UA — LAVANDERIA INSULAR SL (LAINSA)',
+    about_contact: 'Контакт',
+    about_website: 'Сайт',
+    about_changelog: 'Що нового',
+    about_hint: 'Технічна інформація допоможе діагностувати проблеми.',
+    about_copy: 'Скопіювати діагностику',
+    about_save: 'Зберегти діагностику',
+    about_copied: 'Скопійовано в буфер',
+    about_copy_fail: 'Не вдалося скопіювати',
+    about_licenses_title: 'Ліцензії бібліотек',
+    about_licenses_desc: 'Список згенеровано з package.json',
+    about_dep_runtime: 'Залежності',
+    about_dep_dev: 'Dev‑залежності',
+    about_dep_name: 'Пакет',
+    about_dep_ver: 'Версія',
+    // MAINTENANCE MODULE
+    equipment_title: 'Список Обладнання',
+    equipment_add: 'Додати Обладнання',
+    equipment_col_name: 'Назва',
+    equipment_col_type: 'Тип/Категорія',
+    equipment_col_model: 'Модель',
+    equipment_col_location: 'Розташування',
+    equipment_dialog_edit_title: 'Редагувати Обладнання',
+    equipment_dialog_add_title: 'Додати Нове Обладнання',
+    equipment_dialog_type_placeholder: 'Тип (напр., Сушка, Праска)',
+    confirm_delete_equipment: 'Ви впевнені, що хочете видалити це обладнання?',
+    maintlog_title: 'Журнал Обслуговування',
+    maintlog_add_entry: 'Додати Запис',
+    maintlog_col_event_type: 'Тип робіт',
+    maintlog_col_next_service: 'Наступне ТО',
+    maintlog_dialog_title: 'Новий Запис в Журналі',
+    maintlog_dialog_desc_placeholder: 'Опис виконаних робіт *',
+    maintlog_dialog_next_service_date: 'Дата наступного ТО',
+    maintlog_validation_error: 'Будь ласка, виберіть обладнання та додайте опис.',
+    maintlog_event_type_planned: 'Планове ТО',
+    maintlog_event_type_repair: 'Ремонт',
+    maintlog_event_type_cleaning: 'Чистка',
+    maintlog_event_type_diagnostics: 'Діагностика',
+    maintlog_event_type_other: 'Інше',
+    // CALENDAR
+    calendar_today: 'Сьогодні',
+    calendar_month: 'Місяць',
+    calendar_week: 'Тиждень',
+    calendar_day: 'День',
+    calendar_agenda: 'Розклад',
+    calendar_next: '>',
+    calendar_previous: '<',
+    calendar_no_events: 'Немає подій у цьому діапазоні.',
+
+    // STAFF MODULE
+    nav_staff: 'Персонал',
+    nav_staff_directory: 'Довідник персоналу',
+    staff_directory_title: 'Довідник персоналу',
+    staff_add: 'Додати працівника',
+    staff_edit: 'Редагувати працівника',
+    staff_col_name: 'Повне ім\'я',
+    staff_col_department: 'Відділ',
+    staff_col_position: 'Посада',
+    staff_col_status: 'Статус',
+    staff_status_active: 'Активний',
+    staff_status_inactive: 'Неактивний',
+    confirm_delete_staff: 'Ви впевнені, що хочете видалити цього працівника?',
+
+    // STAFF ROSTER
+    nav_staff_roster: 'Графік Роботи',
+    roster_title: 'Тижневий Графік Персоналу',
+    roster_week_of: 'Тиждень з',
+    roster_col_employee: 'Працівник',
+    roster_col_mon: 'Пн',
+    roster_col_tue: 'Вт',
+    roster_col_wed: 'Ср',
+    roster_col_thu: 'Чт',
+    roster_col_fri: 'Пт',
+    roster_col_sat: 'Сб',
+    roster_col_sun: 'Нд',
+    roster_select_placeholder: 'Призначити...',
+    roster_export_pdf: 'Експорт в PDF',
+
+    // TECHNICIAN REPORT
+    nav_tech_report: 'Щоденний Звіт Техніка',
+    tech_report_title: 'Щоденний Звіт Техніка',
+    tech_report_start_today: 'Почати Звіт за сьогодні',
+    tech_report_continue_today: 'Продовжити Звіт за сьогодні',
+    tech_report_no_report: 'На сьогодні немає активного звіту.',
+    tech_report_existing_report: 'Звіт на сьогодні вже існує.',
+
+    // TECH REPORT FORM
+    tech_form_title: 'Щоденний Звіт Техніка',
+    tech_form_tab_calderas: 'Котли та Вода',
+    field_hora: 'Час',
+    field_nivel_agua: 'Рівень води (Бак)',
+    field_presion: 'Тиск (Bar)',
+    field_temp_acs: 'Темп. ACS (°C)',
+    field_dureza: 'Жорсткість (ppm)',
+    field_cloro: 'Хлор (ppm)',
+    field_ph: 'pH',
+    field_conductividad: 'Електропровідність (µS/cm)',
+    field_nivel_sal: 'Рівень солі (%)',
+    field_contador: 'Лічильник',
+    tech_form_tab_introductor: 'Подача дрібних речей',
+    field_day: 'День',
+    field_via: 'ЛІНІЯ',
+    field_enter_data: 'Внеси дані...',
+    tech_form_tab_hibrida: 'Машина Híbrida',
+    field_piezas_grandes: 'Великі вироби',
+    section_trabajadores: 'Призначені працівники',
+    labels_kpi: 'Показники Продуктивності',
+    tech_form_tab_kannegiesser: 'Kannegiesser',
+    field_pieza1: 'ВИРІБ 1 (Килимок)',
+    field_pieza2: 'ВИРІБ 2 (Великі)',
+    field_pieza3: 'ВИРІБ 3 (Великі)',
+    field_pieza4: 'ВИРІБ 4 (Великі)',
+    section_trabajadores: 'Призначені працівники', // вже є
+    // KANNEGIESSER TAB
+    kannegiesser_machine_no: 'Машина №',
+    kannegiesser_worker_no: 'Працівник',
+
+    // AUTH PAGES
+    login_error: 'Неправильний логін або пароль',
+    password_label: 'Пароль',
+    register_link: 'Зареєструвати нового користувача',
+    register_title: 'Реєстрація',
+    role_label: 'Роль',
+    register_button: 'Зареєструвати',
+    login_link: 'Вже маєте акаунт? Увійдіть',
+    auth_license_link: 'Переглянути ліцензійну угоду',
+
+  },
+
+  ca: {
+    app_title: 'LainsaApp',
+    app_subtitle: 'Gestor de Producció',
+    brand: 'LAINSA',
+    hello_name: 'Hola, {name}!',
+    login: 'Iniciar sessió',
+    nav_panel: 'Panell',
+    nav_form: 'Formulari (torn)',
+    nav_open_shift: 'Obrir torn',
+    nav_analytics: 'Analítica',
+    nav_machines: 'Màquines',
+    nav_settings: 'Ajustos',
+    nav_archive: 'Arxiu',
+    nav_reports: 'Informes',
+    nav_users: 'Usuaris',
+    nav_about: "Quant a l'app",
+    nav_logout: 'Sortir',
+    nav_equipment: 'Equipament',
+    nav_maintenance_log: 'Registre de Manteniment',
+    nav_maintenance_calendar: 'Calendari de Manteniment',
+    panel_operator: "Panell de l'Operari",
+    panel_supervisor: 'Panell del Supervisor',
+    panel_technician: 'Panell del Tècnic',
+    quick_nav: 'Navegació Ràpida',
+    shift_summary: 'Resum del Torn Actual',
+    production_total: 'Producció Total (Túnel)',
+    rejection_total: 'Rebuig Total (Túnel)',
+    btn_close_shift: 'Tancar Torn',
+    confirm_close_shift: 'Estàs segur que vols tancar el torn actual?',
+    alert_shift_closed: 'Torn tancat i desat.',
+    error_closing_shift: 'S\'ha produït un error en tancar el torn.',
+    current_shift_status: 'Estat del Torn Actual',
+    no_active_shift: 'No hi ha un torn actiu',
+    btn_open_shift: 'Obrir torn',
+    btn_form: 'Formulari (torn)',
+    btn_analytics: 'Analítica',
+    btn_machines: 'Màquines',
+    shift_open: 'Obert',
+    shift_closed: 'Tancat',
+    shift_label: 'Torn',
+    kpi_avg: 'KPI mitjà (kg/h)',
+    kpi_total_kg: 'Pes total (kg)',
+    kpi_total_hours: 'Hores totals',
+    today: 'Avui',
+    kg: 'Kg',
+    hours: 'Hores',
+    kgh: 'Kg/h',
+    params: 'Paràmetres',
+    period: 'Període',
+    period_day: 'Dies',
+    period_week: 'Setmanes (ISO)',
+    start: 'Inici',
+    end: 'Fi',
+    shift_hours: 'Durada del torn (h)',
+    shift_hours_hint: "S'utilitza si el registre no té hores",
+    chart_shift: 'Comparació de torns (kg/h)',
+    chart_trend: 'Tendència del KPI total (kg/h)',
+    maniana: 'Kg/h Matí',
+    tarde: 'Kg/h Tarda',
+    total: 'Kg/h Total',
+    upcoming_maint: 'Manteniments propers',
+    no_tasks: 'No hi ha tasques programades',
+    machine: 'Màquina',
+    due: 'Data',
+    export_title: 'KPI de Producció',
+    export_period: 'Període',
+    export_generated: 'Generat',
+    col_label: 'Etiqueta',
+    col_kgh_maniana: 'Kg/h Matí',
+    col_kgh_tarde: 'Kg/h Tarda',
+    col_kgh_total: 'Kg/h Total',
+    col_kg_total: 'Kg Totals',
+    col_hours_total: 'Hores Totals',
+    settings_lang_title: "Idioma de l'aplicació",
+    settings_lang_note: "L'idioma es desa a les preferències i s'aplica a tota la interfície.",
+    backup_title: 'Còpia de seguretat',
+    backup_create: 'Crear còpia (.json)',
+    backup_restore: 'Restaurar des d’arxiu',
+    backup_note: 'La còpia inclou dades principals (registres, manteniment, màquines, clients, usuaris, torn, preferències).',
+    environment: 'Entorn',
+    environment_electron: 'Aplicació d’escriptori (Electron)',
+    environment_web: 'Navegador web',
+    data_preview: 'Previsualització de dades',
+    key: 'Clau',
+    items: 'Elements',
+    backup_error_save: 'No s’ha pogut desar el fitxer.',
+    import_success: 'Dades importades correctament.',
+    import_error: "Error d'importació. Assegura't de triar un fitxer de còpia vàlid.",
+    lang_label: 'Idioma',
+    lang_es: 'Espanyol',
+    lang_uk: 'Ucraïnès',
+    lang_ca: 'Català',
+    lang_en: 'Anglès',
+    common_loading: 'Carregant…',
+    common_refresh: 'Actualitza',
+    common_loadError: 'No s’ha pogut carregar',
+    common_back: 'Enrere',
+    common_all: 'Tots',
+    common_save: 'Desar',
+    common_cancel: 'Cancel·lar',
+    common_description: 'Descripció',
+    common_technician: 'Tècnic',
+    labels_date: 'Data',
+    labels_shift: 'Torn',
+    labels_operators: 'Operadors',
+    labels_operator: 'Operador',
+    labels_client: 'Client',
+    labels_program: 'Programa',
+    labels_machine: 'Màquina',
+    labels_kg: 'Kg',
+    labels_hours: 'Hores',
+    labels_kgh: 'Kg/h',
+    labels_cycles: 'Cicles',
+    labels_rejectKg: 'Rebuig (kg)',
+    labels_notes: 'Notes',
+    labels_actions: 'Accions',
+    filters_from: 'Des de',
+    filters_to: 'Fins a',
+    filters_search: 'Cerca',
+    filters_placeholder: 'id, operador, client, màquina, notes…',
+    actions_view: 'Veure',
+    actions_print: 'Imprimir',
+    actions_exportPdf: 'Exporta PDF',
+    actions_exportXlsx: 'Exporta Excel',
+    archive_title: 'Arxiu',
+    archive_subtitle: 'Vista ràpida, filtres, exportació',
+    archive_selectPage: 'Selecciona la pàgina',
+    archive_unselectPage: 'Treu selecció',
+    archive_exportExcelSel: 'Exporta seleccionats (Excel)',
+    archive_exportPdfSel: 'Exporta seleccionats (PDF)',
+    archive_selected: 'Seleccionats',
+    archive_empty: 'No hi ha resultats pels filtres',
+    archive_pdfTitle: 'Registre de Producció',
+    archive_printTitle: 'Imprimir Registre',
+    archive_sheetName: 'Arxiu',
+    archive_record: 'Registre',
+    view_title: 'Registre',
+    view_titlePdf: 'Registre de Producció',
+    view_printTitle: 'Imprimir Registre',
+    view_notFound: 'No s’ha trobat el registre',
+    view_kpi: 'Indicadors',
+    view_start: 'Inici',
+    view_end: 'Fi',
+    view_openMachine: 'Obrir detalls de la màquina',
+    view_sheetName: 'Registre',
+    reports_title: 'Informes',
+    reports_subtitle: 'Resum i anàlisi per període',
+    reports_period: 'Període',
+    reports_records: 'Registres',
+    reports_summary: 'Resum',
+    reports_byShift: 'Per torns',
+    reports_operators: 'Operadors',
+    reports_topKg: 'Top-5 per Kg',
+    reports_topKgh: 'Top-5 per Kg/h',
+    reports_byMachine: 'Per màquines',
+    reports_byProgram: 'Per programes',
+    reports_hint: 'Canvia els filtres per recalcular les dades al moment',
+    about_title: "Quant a l'aplicació",
+    about_subtitle: 'Informació de versió i crèdits',
+    about_version: 'Versió',
+    about_environment: 'Entorn',
+    about_company_type: 'Programari per a bugaderies',
+    about_author: 'Autor',
+    about_author_name: 'Serhii Solodukha',
+    about_company: 'Companyia',
+    about_company_name: 'SVH Group UA — LAVANDERIA INSULAR SL (LAINSA)',
+    about_contact: 'Contacte',
+    about_website: 'Lloc web',
+    about_changelog: 'Novetats',
+    about_hint: 'La informació tècnica ajuda a diagnosticar problemes.',
+    about_copy: 'Copia diagnòstic',
+    about_save: 'Desa diagnòstic',
+    about_copied: 'Copiat al porta-retalls',
+    about_copy_fail: 'No s’ha pogut copiar',
+    about_licenses_title: 'Llicències de biblioteques',
+    about_licenses_desc: 'Llista generada des de package.json',
+    about_dep_runtime: 'Dependències',
+    about_dep_dev: 'Dependències de desenvolupament',
+    about_dep_name: 'Paquet',
+    about_dep_ver: 'Versió',
+    // MAINTENANCE MODULE
+    equipment_title: 'Llista d\'Equipament',
+    equipment_add: 'Afegir Equipament',
+    equipment_col_name: 'Nom',
+    equipment_col_type: 'Tipus/Categoria',
+    equipment_col_model: 'Model',
+    equipment_col_location: 'Ubicació',
+    equipment_dialog_edit_title: 'Editar Equipament',
+    equipment_dialog_add_title: 'Afegir Nou Equipament',
+    equipment_dialog_type_placeholder: 'Tipus (ex. Assecadora, Planxa)',
+    confirm_delete_equipment: 'Estàs segur que vols eliminar aquest equipament?',
+    maintlog_title: 'Registre de Manteniment',
+    maintlog_add_entry: 'Afegir Registre',
+    maintlog_col_event_type: 'Tipus de Treball',
+    maintlog_col_next_service: 'Pròxim Manteniment',
+    maintlog_dialog_title: 'Nou Registre al Diari',
+    maintlog_dialog_desc_placeholder: 'Descripció del treball realitzat *',
+    maintlog_dialog_next_service_date: 'Data del pròxim Manteniment',
+    maintlog_validation_error: 'Si us plau, seleccioneu l\'equipament i afegiu una descripció.',
+    maintlog_event_type_planned: 'Manteniment Planificat',
+    maintlog_event_type_repair: 'Reparació',
+    maintlog_event_type_cleaning: 'Neteja',
+    maintlog_event_type_diagnostics: 'Diagnòstic',
+    maintlog_event_type_other: 'Altre',
+    // CALENDAR
+    calendar_today: 'Avui',
+    calendar_month: 'Mes',
+    calendar_week: 'Setmana',
+    calendar_day: 'Dia',
+    calendar_agenda: 'Agenda',
+    calendar_next: '>',
+    calendar_previous: '<',
+    calendar_no_events: 'No hi ha esdeveniments en aquest rang.',
+
+    // STAFF MODULE
+    nav_staff: 'Personal',
+    nav_staff_directory: 'Directori de Personal',
+    staff_directory_title: 'Directori de Personal',
+    staff_add: 'Afegir Empleat',
+    staff_edit: 'Editar Empleat',
+    staff_col_name: 'Nom Complet',
+    staff_col_department: 'Departament',
+    staff_col_position: 'Càrrec',
+    staff_col_status: 'Estat',
+    staff_status_active: 'Actiu',
+    staff_status_inactive: 'Inactiu',
+    confirm_delete_staff: 'Estàs segur que vols eliminar aquest empleat?',
+
+        // STAFF ROSTER
+    nav_staff_roster: 'Horari del Personal',
+    roster_title: 'Horari Setmanal del Personal',
+    roster_week_of: 'Setmana del',
+    roster_col_employee: 'Empleat',
+    roster_col_mon: 'Dilluns',
+    roster_col_tue: 'Dimarts',
+    roster_col_wed: 'Dimecres',
+    roster_col_thu: 'Dijous',
+    roster_col_fri: 'Divendres',
+    roster_col_sat: 'Dissabte',
+    roster_col_sun: 'Diumenge',
+    roster_select_placeholder: 'Assignar...',
+    roster_export_pdf: 'Exportar a PDF',
+
+    // TECHNICIAN REPORT
+    nav_tech_report: 'Informe Tècnic Diari',
+    tech_report_title: 'Informe Tècnic Diari',
+    tech_report_start_today: 'Iniciar Informe per Avui',
+    tech_report_continue_today: 'Continuar Informe d\'Avui',
+    tech_report_no_report: 'No hi ha cap informe actiu per avui.',
+    tech_report_existing_report: 'Ja existeix un informe per avui.',
+    tech_form_tab_introductor: 'Intro. Peces Petites',
+    field_enter_data: 'Dades...',
+    labels_kpi: 'Indicadors de Productivitat',
+    // KANNEGIESSER TAB
+    kannegiesser_machine_no: 'Màquina #',
+    kannegiesser_worker_no: 'Treballador',
+
+    // AUTH PAGES
+login_error: 'Usuari o contrasenya incorrectes',
+password_label: 'Contrasenya',
+register_link: 'Registrar nou usuari',
+register_title: 'Registre',
+role_label: 'Rol',
+register_button: 'Registrar',
+login_link: 'Ja tens un compte? Inicia sessió',
+    auth_license_link: 'Veure acord de llicència',
+  },
+
+  en: {
+    app_title: 'LainsaApp',
+    app_subtitle: 'Production Manager',
+    brand: 'LAINSA',
+    hello_name: 'Hi, {name}!',
+    login: 'Log in',
+    nav_panel: 'Dashboard',
+    nav_form: 'Form (shift)',
+    nav_open_shift: 'Open shift',
+    nav_analytics: 'Analytics',
+    nav_machines: 'Machines',
+    nav_settings: 'Settings',
+    nav_archive: 'Archive',
+    nav_reports: 'Reports',
+    nav_users: 'Users',
+    nav_about: 'About',
+    nav_logout: 'Log out',
+    nav_equipment: 'Equipment',
+    nav_maintenance_log: 'Maintenance Log',
+    nav_maintenance_calendar: 'Maintenance Calendar',
+    panel_operator: 'Operator Dashboard',
+    panel_supervisor: 'Supervisor Dashboard',
+    panel_technician: 'Technician Dashboard',
+    quick_nav: 'Quick Navigation',
+    shift_summary: 'Current Shift Summary',
+    production_total: 'Total Production (Tunnel)',
+    rejection_total: 'Total Rejection (Tunnel)',
+    btn_close_shift: 'Close Shift',
+    confirm_close_shift: 'Are you sure you want to close the current shift?',
+    alert_shift_closed: 'Shift closed and saved.',
+    error_closing_shift: 'An error occurred while closing the shift.',
+    current_shift_status: 'Current Shift Status',
+    no_active_shift: 'There is no active shift',
+    btn_open_shift: 'Open shift',
+    btn_form: 'Form (shift)',
+    btn_analytics: 'Analytics',
+    btn_machines: 'Machines',
+    shift_open: 'Open',
+    shift_closed: 'Closed',
+    shift_label: 'Shift',
+    kpi_avg: 'Avg KPI (kg/h)',
+    kpi_total_kg: 'Total weight (kg)',
+    kpi_total_hours: 'Total hours',
+    today: 'Today',
+    kg: 'Kg',
+    hours: 'Hours',
+    kgh: 'Kg/h',
+    params: 'Parameters',
+    period: 'Period',
+    period_day: 'Days',
+    period_week: 'Weeks (ISO)',
+    start: 'Start',
+    end: 'End',
+    shift_hours: 'Shift duration (h)',
+    shift_hours_hint: 'Used if the record has no hours',
+    chart_shift: 'Shift comparison (kg/h)',
+    chart_trend: 'Total KPI trend (kg/h)',
+    maniana: 'Kg/h Morning',
+    tarde: 'Kg/h Evening',
+    total: 'Kg/h Total',
+    upcoming_maint: 'Upcoming maintenance',
+    no_tasks: 'No tasks scheduled',
+    machine: 'Machine',
+    due: 'Date',
+    export_title: 'Production KPI',
+    export_period: 'Period',
+    export_generated: 'Generated',
+    col_label: 'Label',
+    col_kgh_maniana: 'Kg/h Morning',
+    col_kgh_tarde: 'Kg/h Evening',
+    col_kgh_total: 'Kg/h Total',
+    col_kg_total: 'Total Kg',
+    col_hours_total: 'Total Hours',
+    settings_lang_title: 'Application language',
+    settings_lang_note: 'Language is saved in preferences and applied across the UI.',
+    backup_title: 'Backup',
+    backup_create: 'Create backup (.json)',
+    backup_restore: 'Restore from file',
+    backup_note: 'Backup includes main data (records, maintenance, machines, clients, users, shift, preferences).',
+    environment: 'Environment',
+    environment_electron: 'Desktop app (Electron)',
+    environment_web: 'Web browser',
+    data_preview: 'Data preview',
+    key: 'Key',
+    items: 'Items',
+    backup_error_save: 'Could not save the file.',
+    import_success: 'Data imported successfully.',
+    import_error: 'Import error. Make sure you selected a valid backup file.',
+    lang_label: 'Language',
+    lang_es: 'Spanish',
+    lang_uk: 'Ukrainian',
+    lang_ca: 'Catalan',
+    lang_en: 'English',
+    common_loading: 'Loading…',
+    common_refresh: 'Refresh',
+    common_loadError: 'Failed to load',
+    common_back: 'Back',
+    common_all: 'All',
+    common_save: 'Save',
+    common_cancel: 'Cancel',
+    common_description: 'Description',
+    common_technician: 'Technician',
+    labels_date: 'Date',
+    labels_shift: 'Shift',
+    labels_operators: 'Operators',
+    labels_operator: 'Operator',
+    labels_client: 'Client',
+    labels_program: 'Program',
+    labels_machine: 'Machine',
+    labels_kg: 'Kg',
+    labels_hours: 'Hours',
+    labels_kgh: 'Kg/h',
+    labels_cycles: 'Cycles',
+    labels_rejectKg: 'Reject (kg)',
+    labels_notes: 'Notes',
+    labels_actions: 'Actions',
+    filters_from: 'From',
+    filters_to: 'To',
+    filters_search: 'Search',
+    filters_placeholder: 'id, operator, client, machine, notes…',
+    actions_view: 'View',
+    actions_print: 'Print',
+    actions_exportPdf: 'Export PDF',
+    actions_exportXlsx: 'Export Excel',
+    archive_title: 'Archive',
+    archive_subtitle: 'Quick view, filters, export',
+    archive_selectPage: 'Select page',
+    archive_unselectPage: 'Unselect',
+    archive_exportExcelSel: 'Export selected (Excel)',
+    archive_exportPdfSel: 'Export selected (PDF)',
+    archive_selected: 'Selected',
+    archive_empty: 'No results for the filters',
+    archive_pdfTitle: 'Production Record',
+    archive_printTitle: 'Print Record',
+    archive_sheetName: 'Archive',
+    archive_record: 'Record',
+    view_title: 'Record',
+    view_titlePdf: 'Production Record',
+    view_printTitle: 'Print Record',
+    view_notFound: 'Record not found',
+    view_kpi: 'KPIs',
+    view_start: 'Start',
+    view_end: 'End',
+    view_openMachine: 'Open machine details',
+    view_sheetName: 'Record',
+    reports_title: 'Reports',
+    reports_subtitle: 'Summary & analysis by period',
+    reports_period: 'Period',
+    reports_records: 'Records',
+    reports_summary: 'Summary',
+    reports_byShift: 'By shifts',
+    reports_operators: 'Operators',
+    reports_topKg: 'Top‑5 by Kg',
+    reports_topKgh: 'Top‑5 by Kg/h',
+    reports_byMachine: 'By machines',
+    reports_byProgram: 'By programs',
+    reports_hint: 'Change filters to recalc instantly',
+    about_title: 'About the app',
+    about_subtitle: 'Version info & credits',
+    about_version: 'Version',
+    about_environment: 'Environment',
+    about_company_type: 'Laundry software',
+    about_author: 'Author',
+    about_author_name: 'Serhii Solodukha',
+    about_company: 'Company',
+    about_company_name: 'SVH Group UA — LAVANDERIA INSULAR SL (LAINSA)',
+    about_contact: 'Contact',
+    about_website: 'Website',
+    about_changelog: 'What’s new',
+    about_hint: 'Technical info can help diagnose issues.',
+    about_copy: 'Copy diagnostics',
+    about_save: 'Save diagnostics',
+    about_copied: 'Copied to clipboard',
+    about_copy_fail: 'Copy failed',
+    about_licenses_title: 'Library licenses',
+    about_licenses_desc: 'List generated from package.json',
+    about_dep_runtime: 'Dependencies',
+    about_dep_dev: 'Dev dependencies',
+    about_dep_name: 'Package',
+    about_dep_ver: 'Version',
+    // MAINTENANCE MODULE
+    equipment_title: 'Equipment List',
+    equipment_add: 'Add Equipment',
+    equipment_col_name: 'Name',
+    equipment_col_type: 'Type/Category',
+    equipment_col_model: 'Model',
+    equipment_col_location: 'Location',
+    equipment_dialog_edit_title: 'Edit Equipment',
+    equipment_dialog_add_title: 'Add New Equipment',
+    equipment_dialog_type_placeholder: 'Type (e.g., Dryer, Iron)',
+    confirm_delete_equipment: 'Are you sure you want to delete this equipment?',
+    maintlog_title: 'Maintenance Log',
+    maintlog_add_entry: 'Add Entry',
+    maintlog_col_event_type: 'Work Type',
+    maintlog_col_next_service: 'Next Service',
+    maintlog_dialog_title: 'New Log Entry',
+    maintlog_dialog_desc_placeholder: 'Description of work performed *',
+    maintlog_dialog_next_service_date: 'Next service date',
+    maintlog_validation_error: 'Please select equipment and add a description.',
+    maintlog_event_type_planned: 'Planned Maintenance',
+    maintlog_event_type_repair: 'Repair',
+    maintlog_event_type_cleaning: 'Cleaning',
+    maintlog_event_type_diagnostics: 'Diagnostics',
+    maintlog_event_type_other: 'Other',
+    // CALENDAR
+    calendar_today: 'Today',
+    calendar_month: 'Month',
+    calendar_week: 'Week',
+    calendar_day: 'Day',
+    calendar_agenda: 'Agenda',
+    calendar_next: '>',
+    calendar_previous: '<',
+    calendar_no_events: 'There are no events in this range.',
+
+    // STAFF MODULE
+    nav_staff: 'Staff',
+    nav_staff_directory: 'Staff Directory',
+    staff_directory_title: 'Staff Directory',
+    staff_add: 'Add Employee',
+    staff_edit: 'Edit Employee',
+    staff_col_name: 'Full Name',
+    staff_col_department: 'Department',
+    staff_col_position: 'Position',
+    staff_col_status: 'Status',
+    staff_status_active: 'Active',
+    staff_status_inactive: 'Inactive',
+    confirm_delete_staff: 'Are you sure you want to delete this employee?',
+
+    // STAFF ROSTER
+    nav_staff_roster: 'Staff Roster',
+    roster_title: 'Weekly Staff Roster',
+    roster_week_of: 'Week of',
+    roster_col_employee: 'Employee',
+    roster_col_mon: 'Mon',
+    roster_col_tue: 'Tue',
+    roster_col_wed: 'Wed',
+    roster_col_thu: 'Thu',
+    roster_col_fri: 'Fri',
+    roster_col_sat: 'Sat',
+    roster_col_sun: 'Sun',
+    roster_select_placeholder: 'Assign...',
+    roster_export_pdf: 'Export to PDF',
+
+    // TECHNICIAN REPORT
+    nav_tech_report: 'Daily Technician Report',
+    tech_report_title: 'Daily Technician Report',
+    tech_report_start_today: 'Start Today\'s Report',
+    tech_report_continue_today: 'Continue Today\'s Report',
+    tech_report_no_report: 'No active report for today.',
+    tech_report_existing_report: 'A report for today already exists.',
+    tech_form_tab_introductor: 'Small Piece Feeder',
+    field_enter_data: 'Data...',
+    labels_kpi: 'Productivity KPIs',
+    // KANNEGIESSER TAB
+    kannegiesser_machine_no: 'Machine #',
+    kannegiesser_worker_no: 'Worker',
+    // AUTH PAGES
+login_error: 'Incorrect username or password',
+password_label: 'Password',
+register_link: 'Register new user',
+register_title: 'Register',
+role_label: 'Role',
+register_button: 'Register',
+login_link: 'Already have an account? Log in',
+    auth_license_link: 'View license agreement',
+
+  },
+};
+
+// ---- Стан мови + слухачі ---------------------------------------------------
+let currentLang = FALLBACK_LANG;
+try {
+  const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+  if (raw && STR[raw]) currentLang = raw;
+} catch { /* ignore */ }
+
+const listeners = new Set();
+
+// ---- Публічні API (i18n) ---------------------------------------------------
+function getDeep(obj, path) {
+  if (!obj || !path) return undefined;
+  const parts = String(path).split('.');
+  let cur = obj;
+  for (const p of parts) {
+    if (cur && Object.prototype.hasOwnProperty.call(cur, p)) cur = cur[p];
+    else return undefined;
+  }
+  return cur;
+}
+
+export function t(key, vars) {
+  const table = STR[currentLang] || STR[FALLBACK_LANG];
+
+  // 1) deep path a.b.c
+  let text = getDeep(table, key);
+  if (text == null) text = getDeep(STR[FALLBACK_LANG], key);
+
+  // 2) legacy flat key
+  if (text == null) text = softGet(table, key);
+  if (text == null) text = softGet(STR[FALLBACK_LANG], key);
+
+  // 3) fallback to key
+  if (text == null) text = key;
+
+  if (vars && typeof vars === 'object') {
+    for (const [k, v] of Object.entries(vars)) {
+      text = String(text).replaceAll(`{${k}}`, String(v));
+    }
+  }
+  return text;
+}
+
+export function getLang() {
+  return currentLang;
+}
+
+export function setLang(lang) {
+  const next = STR[lang] ? lang : FALLBACK_LANG;
+  currentLang = next;
+
+  // Оповістити підписників
+  listeners.forEach(fn => { try { fn(currentLang); } catch {} });
+
+  // Зберегти у файловій БД + дублювати у localStorage
+  (async () => {
+    try {
+      const prefs = await getData('app_prefs');
+      const updated = { ...(prefs && typeof prefs === 'object' ? prefs : {}), lang: currentLang };
+      await saveData('app_prefs', updated);
+    } catch { /* ignore */ }
+
+    try {
+      if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, currentLang);
+    } catch { /* ignore */ }
+  })();
+}
+
+// Примітивний хук для реактивності мови в компонентах
+export function useI18n() {
+  const [lang, set] = useState(currentLang);
+
+  useEffect(() => {
+    const fn = (l) => set(l);
+    listeners.add(fn);
+    return () => listeners.delete(fn);
+  }, []);
+
+  useEffect(() => {
+    // При першому монтуванні: підтягнемо мову з файлової БД (якщо є)
+    let alive = true;
+    (async () => {
+      try {
+        const prefs = await getData('app_prefs');
+        const stored = prefs?.lang;
+        if (alive && stored && STR[stored] && stored !== currentLang) {
+          setLang(stored);
+        }
+      } catch { /* no prefs is ok */ }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  return { t, lang, setLang };
+}
+
+// ---------- Додаткові утиліти для About: версія та ліцензії -----------------
+
+// універсально дістаємо package.json (Electron preload або public/)
+async function readPackageJson() {
+  // 1) Electron preload (типові назви мостів)
+  try { if (window.api?.app?.getPackage) return await window.api.app.getPackage(); } catch {}
+  try { if (window.electronAPI?.getPackageJson) return await window.electronAPI.getPackageJson(); } catch {}
+
+  // 2) DEV / Web — public/package.json
+  try {
+    const res = await fetch('/package.json', { cache: 'no-store' });
+    if (res.ok) return await res.json();
+  } catch {}
+
+  // 3) Нічого не вийшло
+  return null;
+}
+
+// Повертає { name, version, license } застосунку
+export async function getAppMeta() {
+  const pkg = await readPackageJson();
+  return {
+    name: pkg?.name || 'app',
+    version: pkg?.version || '0.0.0',
+    license: pkg?.license || 'UNLICENSED',
+  };
+}
+
+// Повертає список залежностей з package.json: { deps:[], devDeps:[] }
+// Кожен елемент: { name, version }  (ліцензії саме пакетів не витягуємо без файлового доступу node_modules)
+export async function getLibLicenses() {
+  const pkg = await readPackageJson();
+  const deps = [];
+  const devDeps = [];
+
+  if (pkg?.dependencies && typeof pkg.dependencies === 'object') {
+    for (const [name, version] of Object.entries(pkg.dependencies)) deps.push({ name, version });
+  }
+  if (pkg?.devDependencies && typeof pkg.devDependencies === 'object') {
+    for (const [name, version] of Object.entries(pkg.devDependencies)) devDeps.push({ name, version });
+  }
+
+  // відсортуємо алфавітно для охайності
+  deps.sort((a, b) => a.name.localeCompare(b.name));
+  devDeps.sort((a, b) => a.name.localeCompare(b.name));
+
+  return { deps, devDeps };
+}
+
+export { STR as translations };
+
+
+// ==== AUTO-EXTENDED KEYS (Archive + Incidents + Menu) ====
+const __EXTEND_I18N__ = {
+  es: {
+    nav_admin: 'Administración',
+    nav_maintenance: 'Mantenimiento',
+    menu: {
+      archiveOperator: 'Informes del operador',
+      archiveTechnician: 'Informes del técnico',
+      archiveIncidents: 'Incidentes',
+      archiveMisc: 'Otros',
+    },
+    archive: {
+      operator: { title: 'Informes del operador', todo: 'Aquí habrá páginas/filtros para los informes del operador.' },
+      technician: { title: 'Informes del técnico', todo: 'Aquí habrá la separación por subinformes del técnico.' },
+      misc: { title: 'Otros materiales' },
+    },
+    incidents: {
+      form: {
+        title: 'Nuevo incidente',
+        fields: { type: 'Tipo de incidente', client: 'Cliente', date: 'Fecha', description: 'Descripción' },
+        types: { client: 'De cliente', internal: 'Interno' },
+        actions: { addPhotos: 'Añadir fotos', takePhoto: 'Tomar foto con la cámara', submit: 'Guardar' },
+        errors: { clientRequired: 'Elige un cliente para el incidente de cliente' },
+      },
+      status: { open: 'Abierto', closed: 'Cerrado' },
+      list: {
+        title: 'Incidentes', empty: 'Aún no hay incidentes',
+        filters: { search: 'Buscar...' }, actions: { toggle: 'Abr./cerr.', delete: 'Eliminar' },
+        confirmDelete: '¿Eliminar el incidente?',
+      },
+    },
+  },
+  uk: {
+    nav_admin: 'Адмін',
+    nav_maintenance: 'Технічне обслуговування',
+    menu: {
+      archiveOperator: 'Звіти оператора',
+      archiveTechnician: 'Звіти техніка',
+      archiveIncidents: 'Інциденти',
+      archiveMisc: 'Інше',
+    },
+    archive: {
+      operator: { title: 'Звіти оператора', todo: 'Тут будуть сторінки/фільтри для звітів оператора.' },
+      technician: { title: 'Звіти техніка', todo: 'Тут буде розділення по підзвітах техніка.' },
+      misc: { title: 'Інші матеріали' },
+    },
+    incidents: {
+      form: {
+        title: 'Новий інцидент',
+        fields: { type: 'Тип інциденту', client: 'Клієнт', date: 'Дата', description: 'Опис' },
+        types: { client: 'Клієнтський', internal: 'Внутрішній' },
+        actions: { addPhotos: 'Додати фото', takePhoto: 'Зробити фото камерою', submit: 'Зберегти' },
+        errors: { clientRequired: 'Оберіть клієнта для клієнтського інциденту' },
+      },
+      status: { open: 'Відкрито', closed: 'Закрито' },
+      list: {
+        title: 'Інциденти', empty: 'Поки що немає інцидентів',
+        filters: { search: 'Пошук...' }, actions: { toggle: 'Відкр./закр.', delete: 'Видалити' },
+        confirmDelete: 'Видалити інцидент?',
+      },
+    },
+  },
+  ca: {
+    nav_admin: 'Administració',
+    nav_maintenance: 'Manteniment',
+    menu: {
+      archiveOperator: "Informes de l'operador",
+      archiveTechnician: 'Informes del tècnic',
+      archiveIncidents: 'Incidents',
+      archiveMisc: 'Altres',
+    },
+    archive: {
+      operator: { title: "Informes de l'operador", todo: "Aquí hi haurà pàgines/filters per als informes de l'operador." },
+      technician: { title: 'Informes del tècnic', todo: 'Aquí hi haurà la separació per subinformes del tècnic.' },
+      misc: { title: 'Altres materials' },
+    },
+    incidents: {
+      form: {
+        title: 'Incident nou',
+        fields: { type: "Tipus d'incident", client: 'Client', date: 'Data', description: 'Descripció' },
+        types: { client: 'De client', internal: 'Intern' },
+        actions: { addPhotos: 'Afegir fotos', takePhoto: 'Fer foto amb la càmera', submit: 'Desar' },
+        errors: { clientRequired: 'Tria un client per a un incident de client' },
+      },
+      status: { open: 'Obert', closed: 'Tancat' },
+      list: {
+        title: 'Incidents', empty: 'Encara no hi ha incidents',
+        filters: { search: 'Cercar...' }, actions: { toggle: 'Obr./tanc.', delete: 'Eliminar' },
+        confirmDelete: "Eliminar l'incident?",
+      },
+    },
+  },
+  en: {
+    nav_admin: 'Admin',
+    nav_maintenance: 'Maintenance',
+    menu: {
+      archiveOperator: 'Operator reports',
+      archiveTechnician: 'Technician reports',
+      archiveIncidents: 'Incidents',
+      archiveMisc: 'Other',
+    },
+    archive: {
+      operator: { title: 'Operator reports', todo: 'Pages/filters for operator reports will be here.' },
+      technician: { title: 'Technician reports', todo: 'Subreports for technician will be separated here.' },
+      misc: { title: 'Other materials' },
+    },
+    incidents: {
+      form: {
+        title: 'New incident',
+        fields: { type: 'Incident type', client: 'Client', date: 'Date', description: 'Description' },
+        types: { client: 'Client', internal: 'Internal' },
+        actions: { addPhotos: 'Add photos', takePhoto: 'Take photo with camera', submit: 'Save' },
+        errors: { clientRequired: 'Select a client for a client-type incident' },
+      },
+      status: { open: 'Open', closed: 'Closed' },
+      list: {
+        title: 'Incidents', empty: 'No incidents yet',
+        filters: { search: 'Search...' }, actions: { toggle: 'Open/close', delete: 'Delete' },
+        confirmDelete: 'Delete the incident?',
+      },
+    },
+  },
+};
+
+for (const lang of Object.keys(__EXTEND_I18N__)) {
+  const add = __EXTEND_I18N__[lang];
+  if (!STR[lang]) { STR[lang] = add; continue; }
+  // shallow merge top-level; deep merge for nested maps we use simple spread (OK here)
+  STR[lang] = { ...STR[lang], ...add };
+}

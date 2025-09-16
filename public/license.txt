@@ -1,0 +1,171 @@
+***
+
+## ESPAÑOL
+
+**ACUERDO DE LICENCIA DE USUARIO FINAL Y AVISO DE PROPIEDAD INTELECTUAL**
+
+**Licenciante/desarrollador:**  
+SVH Group UA (Serhii Solodukha), Ucrania.  
+**Licenciatario/usuario:**  
+LAVANDERIA INSULAR SL (LAINSA), España.
+
+### 1. Objeto y titularidad  
+SVH Group UA (Serhii Solodukha) conserva todos los derechos de propiedad intelectual sobre el código fuente (“interfaz/UX”, backend y arquitectura) y los manuales/guías integrados.  
+Toda la información, textos, datos y contenidos introducidos o almacenados en el software son propiedad exclusiva de LAVANDERIA INSULAR SL (LAINSA).
+
+### 2. Finalidad, gratuidad y futuro comercial  
+Este software se entrega gratuitamente, únicamente para fines demostrativos y de evaluación interna, con el objetivo de mostrar cómo la automatización puede ser en el futuro: rápida, sencilla y ecológica.  
+LAINSA dispondrá de una licencia gratuita durante este período; cualquier cambio a condiciones comerciales será comunicado por escrito y sólo tendrá efecto futuro con aceptación expresa por ambas partes.
+
+### 3. Derechos concedidos  
+La licencia concedida es **no exclusiva**, **intransferible** y **sin derecho de sublicenciar**. LAINSA puede instalar, ejecutar y utilizar el software en sus operaciones internas.
+
+### 4. Restricciones  
+Se prohíbe:  
+- La distribución, venta, sublicencia, cesión a terceros, alquiler;  
+- Ingeniería inversa, descompilación, desensamblaje, traducción o creación de obras derivadas;  
+- Cualquier uso o difusión externa sin consentimiento escrito del licenciante.  
+- Eliminar avisos de derechos de autor o advertencias legales.
+
+### 5. Manuales y documentación  
+Los manuales y guías forman parte del software protegido bajo derechos de autor de SVH Group UA (Serhii Solodukha), y sólo pueden usarse para actividades internas de LAINSA; queda prohibida su publicación o distribución a terceros sin consentimiento.
+
+### 6. Protección de datos, confidencialidad y DPA  
+- Ambas partes se comprometen a mantener la confidencialidad de la información a la que accedan por motivo de esta licencia.  
+- El tratamiento de datos personales se realiza conforme al RGPD/LOPDGDD (España/UE) y la Ley de Ucrania, siendo LAVANDERIA INSULAR SL el responsable (“data controller”) y SVH Group UA únicamente “data processor” o encargado de tratamiento en actuaciones de soporte.  
+- Para cualquier tratamiento de datos personales o soporte, ambas partes firman un **Anexo de Encargado de Tratamiento de Datos (DPA)** donde se detallan finalidad, duración, categorías de datos, medidas técnicas y transferencia internacional.
+
+### 7. Actualizaciones, soporte y SLA  
+Cualquier soporte, actualizaciones o servicios adicionales serán regulados por un SLA separado acordado por ambas partes. Al instalar actualizaciones, LAINSA acepta posibles nuevas condiciones.
+
+### 8. Garantía y responsabilidad  
+El software se entrega “tal cual” y sin garantía de idoneidad salvo lo estipulado en SLA. SVH Group UA no asume responsabilidad por daños indirectos; la responsabilidad total se limita a lo abonado en los últimos 12 meses (actualmente ningún importe, por su gratuidad), excepto si la ley impide tal limitación.
+
+### 9. Reclamaciones de terceros  
+SVH Group UA garantiza que el software no infringe derechos de terceros. En caso de reclamación, SVH Group UA podrá modificar, sustituir el software o resolver la licencia con devolución proporcional de pagos futuros (si existiesen).
+
+### 10. Vigencia y terminación  
+La licencia es válida hasta revocación, incumplimiento grave, insolvencia, o acuerdo mutuo.  
+Al finalizar, LAINSA cesará el uso, eliminará el software, y podrá solicitar exportación de sus datos en formato adecuado.
+
+### 11. Legislación aplicable y jurisdicción  
+La licencia se rige por la legislación de España y la Unión Europea (TRLPI, RGPD, LOPDGDD), y las controversias se resolverán en los juzgados de [ciudad, España], salvo que expresamente se acuerde otra jurisdicción para centros fuera de la UE (por ejemplo, Ucrania).
+
+### 12. Acuerdo íntegro  
+Este instrumento constituye el acuerdo total en materia de licencia. Toda excepción o modificación deberá constar por escrito y firmada.
+
+La instalación, uso o acceso al software implica aceptación de estas condiciones por el representante autorizado de LAINSA.
+
+***
+
+## УКРАЇНСЬКА
+
+**ЛІЦЕНЗІЙНА УГОДА КОРИСТУВАЧА Й ПОВІДОМЛЕННЯ ПРО ІНТЕЛЕКТУАЛЬНУ ВЛАСНІСТЬ**
+
+**Ліцензіар/розробник:**  
+SVH Group UA (Сергій Солодуха), Україна  
+**Ліцензіат/користувач:**  
+LAVANDERIA INSULAR SL (LAINSA), Іспанія
+
+### 1. Об’єкт і власність  
+SVH Group UA (Сергій Солодуха) зберігає всі права на код (“оболонка/інтерфейс”, бекенд, архітектура) та вбудовані посібники/мануали.  
+Вся інформація, тексти й дані, внесені або збережені в програмі, є власністю LAVANDERIA INSULAR SL (LAINSA).
+
+### 2. Призначення, безоплатність і майбутня комерціалізація  
+Ця програма надається безкоштовно для демонстраційного та внутрішнього ознайомлення, для показу перспективної автоматизації: швидко, просто, екологічно.  
+LAINSA користується безкоштовною ліцензією, і лише письмова угода змінює умови на комерційні.
+
+### 3. Надані права  
+Ліцензія невиключна, невідчужувана, без права субліцензії; LAINSA може встановлювати, запускати і використовувати програму тільки у своїй внутрішній діяльності.
+
+### 4. Обмеження  
+Забороняється:
+- поширення, продаж, субліцензія, передача, надання у користування третім;
+- реверс-інжиніринг, декомпіляція, розбір, переклад чи створення похідних продуктів (крім випадків, передбачених законом);
+- вилучати/змінювати повідомлення про авторське право або юридичні попередження;
+- зовнішнє використання або розголошення без письмової згоди Ліцензіара.
+
+### 5. Посібники і документація  
+Вбудовані посібники — власність SVH Group UA (Сергій Солодуха); використовуються лише всередині LAINSA. Забороняється публікація або розповсюдження без письмової згоди.
+
+### 6. Конфіденційність, персональні дані, DPA  
+Сторони зобов’язані дотримуватись конфіденційності отриманих у рамках цієї ліцензії даних.  
+Всі персональні дані обробляються згідно GDPR/LOPDGDD (ЄС/Іспанія) та Закону України, причому LAINSA виступає Володільцем (контролером) даних, а SVH Group UA — тільки Обробником у технічних питаннях.  
+Додатком укладається **DPA** із деталями обробки, строками, категоріями даних, заходами безпеки.
+
+### 7. Оновлення, підтримка, SLA  
+Оновлення, підтримка — за окремим SLA між сторонами. Встановлення оновлення може тягнути акцепт нових умов.
+
+### 8. Гарантії й відповідальність  
+ПО надається “як є” без гарантії придатності, якщо не передбачено SLA. Ліцензіар не несе відповідальності за опосередковані збитки; сукупна відповідальність обмежена сплаченими сумами за 12 місяців (на зараз — безкоштовно), окрім випадків, коли закон цього не дозволяє.
+
+### 9. Претензії третіх осіб  
+Ліцензіар гарантує, що програма не порушує IP третіх. У випадку претензій — заміна, модифікація або припинення з пропорційним поверненням (у разі оплати в майбутньому).
+
+### 10. Строк і припинення  
+Ліцензія діє до відкликання, грубого порушення, банкрутства чи письмової згоди. Після завершення LAINSA припиняє користування/видаляє ПЗ, має право отримати свої дані у зручному форматі.
+
+### 11. Право і юрисдикція  
+Угода регулюється законами Іспанії та ЄС (TRLPI, GDPR, LOPDGDD); спори вирішуються у судах [місто, Іспанія]. За окремим погодженням для нерезидентів — застосовується право України або арбітраж.
+
+### 12. Повна угода  
+Цей документ — повна угода сторін. Будь-які зміни — лише у письмовій формі.
+
+Використання ПЗ означає прийняття цих умов.
+
+***
+
+## ENGLISH
+
+**END USER LICENSE AGREEMENT AND IP NOTICE**
+
+**Licensor/Developer:**  
+SVH Group UA (Serhii Solodukha), Ukraine  
+**Licensee/User:**  
+LAVANDERIA INSULAR SL (LAINSA), Spain
+
+### 1. Subject and Ownership  
+SVH Group UA (Serhii Solodukha) retains all IP rights in the code (“shell/UI”, backend, architecture) and built-in manuals/guides.  
+All information, texts, data and content entered/stored in the program are the exclusive property of LAVANDERIA INSULAR SL (LAINSA).
+
+### 2. Purpose, Free Use, Future Commercialization  
+This software is provided free of charge for demonstration/internal review only, to showcase the speed, simplicity and eco-friendliness of future automation.  
+LAINSA uses the program under a royalty-free license during this period; introduction of commercial terms requires written notice and the consent of both parties.
+
+### 3. Granted Rights  
+The license is non-exclusive, non-transferable and non-sublicensable; LAINSA may install, run and use the software strictly for internal business.
+
+### 4. Restrictions  
+It is prohibited to:
+- distribute, sell, sublicense, assign, lease the software to third parties;
+- reverse engineer, decompile, disassemble, translate, or create derivative works (except as mandated by law);
+- remove/change copyright or legal notices;
+- use/disclose externally without written Licensor consent.
+
+### 5. Manuals and Documentation  
+Integrated manuals/guides are owned by SVH Group UA (Serhii Solodukha), permitted for LAINSA’s internal use only; external publication/distribution is forbidden without Licensor approval.
+
+### 6. Confidentiality, Personal Data, DPA  
+Both parties must keep confidential any information obtained via this license.  
+Any processing of personal data must comply with GDPR/LOPDGDD (EU/Spain) and Ukrainian law, with LAINSA as the data controller and SVH Group UA as processor for support.  
+A separate DPA addendum specifies data types, duration, processing purpose and safeguards.
+
+### 7. Updates, Support, SLA  
+All updates/support are governed by a separate SLA. Installing updates may require acceptance of revised terms.
+
+### 8. Warranties and Liability  
+The Software is delivered "as is" with no fitness warranty unless specified in an SLA. Licensor is not liable for indirect damages; total liability is capped at 12 months of paid fees (currently zero, as free), unless law prevents such limitation.
+
+### 9. Third Party Claims  
+Licensor guarantees the Software is non-infringing. If notified otherwise, Licensor may replace, modify or terminate the license with proportional refund (if future premium phase applies).
+
+### 10. Term and Termination  
+This license remains valid until revoked, breached, in insolvency, or by mutual written agreement. LAINSA must cease use and delete the Software upon termination, with right to export its data in a suitable format.
+
+### 11. Law and Jurisdiction  
+This agreement is governed by Spanish and EU law (TRLPI, GDPR, LOPDGDD) and disputes resolved by courts in [city, Spain], unless parties agree to Ukrainian law/arbitration for non-EU entities.
+
+### 12. Entire Agreement  
+This is the entire license agreement. Any amendments must be in writing.
+
+Installation or use of the Software constitutes acceptance.

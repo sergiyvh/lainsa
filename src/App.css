@@ -1,0 +1,49 @@
+/* src/App.css */
+
+/* Анімація для іконки "в роботі" */
+@keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .rotating {
+    animation: spin 2s linear infinite;
+  }
+  
+  /* Стилі для друку */
+  @media print {
+    /* Ховаємо всі елементи з класом no-print (меню, кнопки) */
+    .no-print {
+      display: none !important;
+    }
+    
+    /* Прибираємо фон та тіні у компонентів Paper, щоб економити чорнило */
+    .MuiPaper-root {
+      background-color: transparent !important;
+      box-shadow: none !important;
+      border: 1px solid #ddd !important;
+      padding: 8px !important;
+    }
+    
+    /* Забезпечуємо, щоб контент займав всю ширину та прибираємо зайві відступи */
+    body, #root, #printable-area {
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: white !important; /* Робимо фон білим */
+    }
+
+    /* Запобігаємо розриву сторінки всередині блоків */
+    .MuiPaper-root, .MuiGrid-item {
+        page-break-inside: avoid;
+    }
+
+    /* Загальні налаштування шрифту для друку */
+    body {
+        font-size: 10pt !important;
+        color: black !important;
+    }
+  }

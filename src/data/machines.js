@@ -1,0 +1,47 @@
+export const MACHINES = [
+  {
+    id: 1,
+    name: 'GIRBAU HS 6024',
+    capacity: 20,
+    model: 'HS 6024',
+    status: 'Disponible',
+    image: '/images/girbau_hs6024.jpg',
+    imageActive: '/images/girbau_hs6024_active.gif', // Якщо буде анімація
+  },
+  {
+    id: 2,
+    name: 'GIRBAU HS 4040',
+    capacity: 40,
+    model: 'HS 4040',
+    status: 'Disponible',
+    image: '/images/girbau_hs4040.jpg',
+    imageActive: '/images/girbau_hs4040_active.gif',
+  },
+  {
+    id: 3,
+    name: 'Carbonell 40kg',
+    capacity: 40,
+    model: 'Carbonell',
+    status: 'No Funciona',
+    image: '/images/machine_broken.png',
+    imageActive: '/images/machine_broken.png',
+  },
+  {
+    id: 4,
+    name: 'GIRBAU HS 6057 #1',
+    capacity: 60,
+    model: 'HS 6057',
+    status: 'Disponible',
+    image: '/images/girbau_hs6057.jpg',
+    imageActive: '/images/girbau_hs6057_active.gif',
+  },
+  {
+    id: 5,
+    name: 'GIRBAU HS 6057 #2',
+    capacity: 60,
+    model: 'HS 6057',
+    status: 'Disponible',
+    image: '/images/girbau_hs6057.jpg',
+    imageActive: '/images/girbau_hs6057_active.gif',
+  },
+];
