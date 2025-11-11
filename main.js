@@ -76,7 +76,10 @@ function createWindow() {
   // якщо ти збираєш CRA, то це file:// build/index.html
   // інакше — http://localhost:3000 під час dev
   if (process.env.ELECTRON_START_URL) {
-    mainWindow.loadURL(process.env.ELECTRON_START_URL);
+    mainWindow.loadURL(process.env.ELECTRON_START_URL).catch(() => {
+    const startUrl = path.join(__dirname, 'build', 'index.html');
+    mainWindow.loadFile(startUrl);
+  });
   } else {
     const startUrl = path.join(__dirname, 'build', 'index.html');
     mainWindow.loadFile(startUrl);
@@ -232,6 +235,34 @@ ipcMain.handle('restore-data-encrypted', async (_evt, { password }) => {
 });
 
 // === APP LIFECYCLE ===
+
+// === IPC: print current window to PDF ===
+ipcMain.handle('save-pdf', async (_evt, options = {}) => {
+  try {
+    const target = BrowserWindow.getFocusedWindow() || mainWindow;
+    if (!target) throw new Error('No window');
+    const pdfData = await target.webContents.printToPDF({
+      marginsType: 1,
+      printBackground: true,
+      landscape: !!options.landscape,
+      pageSize: options.pageSize || 'A4'
+    });
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Guardar PDF',
+      defaultPath: options.defaultPath || 'report.pdf',
+      filters: [{ name: 'PDF', extensions: ['pdf'] }],
+    });
+    if (canceled || !filePath) return { success: false, reason: 'canceled' };
+    require('fs').writeFileSync(filePath, pdfData);
+    return { success: true, path: filePath };
+  } catch (e) {
+    console.error('save-pdf error:', e);
+    return { success: false, error: e.message };
+  }
+});
+
 app.whenReady().then(createWindow);
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
+ipcMain.handle('app:getVersion', async () => (app.getVersion && app.getVersion()) || 'dev');
+
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

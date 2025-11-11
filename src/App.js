@@ -42,11 +42,13 @@ import TechnicianReportPage from './pages/TechnicianReportPage'; // ✅ Імпо
 import TechnicianFormPage from './pages/TechnicianFormPage'; // ✅ Імпорт
 
 // НОВИЙ АРХІВ ТА ІНЦИДЕНТИ
-import IncidentsList from './pages/Incidents/IncidentsList';
-import IncidentsPage from './features/incidents/IncidentPage';
+import IncidentsCreatePage from './features/incidents/IncidentsCreatePage';
+import IncidentsListPage from './features/incidents/IncidentsListPage';
+import ArchiveIncidentsPage from './features/archive/ArchiveIncidentsPage';
 import OperatorReports from './pages/Archive/OperatorReports';
 import TechnicianReports from './pages/Archive/TechnicianReports';
 import Misc from './pages/Archive/Misc';
+import IncidentViewPage from './features/incidents/IncidentViewPage';
 
 import Layout from './components/Layout';
 import { Box, Typography } from '@mui/material';
@@ -124,6 +126,7 @@ export default function App() {
       <Routes>
         {/* Публічні */}
         <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Login onLogin={setUser} />} />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login onLogin={setUser} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/license" element={<LicensePage />} />
 
@@ -162,13 +165,16 @@ export default function App() {
         <Route path="/iron-assignments" element={<PrivateRoute user={user} roles={['admin','technician','supervisor']}><IroningAssignments /></PrivateRoute>} />
 
         <Route path="/archive/operator" element={<OperatorReports />} />
-<Route path="/archive/technician" element={<TechnicianReports />} />
-<Route path="/archive/incidents" element={<IncidentsList />} />
-<Route path="/archive/misc" element={<Misc />} />
+        <Route path="/archive/technician" element={<TechnicianReports />} />
+        <Route path="/archive/misc" element={<Misc />} />
 
         
         {/* створення інциденту окремим шляхом (кнопка "Додати інцидент") */}
-        <Route path="/incidents" element={<IncidentsPage />} />
+        <Route path="/incidents/create" element={<IncidentsCreatePage/>} />
+        <Route path="/incidents/list" element={<IncidentsListPage />} />
+        <Route path="/archive/incidents" element={<ArchiveIncidentsPage />} />
+        <Route path="/incidents/:id" element={<IncidentViewPage />} />
+            
       </Routes>
     </NotificationProvider>
     </Layout>

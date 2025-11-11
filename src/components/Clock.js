@@ -75,8 +75,9 @@ export default function Clock() {
       className="no-print"
       sx={{
         position: 'fixed',
-        bottom: 72, 
-        left: 16,
+        bottom: 100, 
+        right: 16,
+        left: 'auto',
         p: '8px 16px',
         borderRadius: '12px',
         backgroundColor: 'rgba(255, 255, 255, 0.9)',

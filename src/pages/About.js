@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Box, Card, CardHeader, CardContent, CardActions,
@@ -17,8 +18,13 @@ const tr = (key, esFallback) => {
 
 // --------- версія застосунку (без import.meta) ------------------------------
 async function detectAppVersion() {
-  // 1) Electron preload API
-  try { if (window.api?.app?.getVersion) return await window.api.app.getVersion(); } catch {}
+  // 1) Electron preload API (підтримка і window.api, і window.electronAPI)
+  try {
+    const api = (window.api && window.api.app?.getVersion)
+      ? window.api
+      : (window.electronAPI && window.electronAPI.app?.getVersion ? window.electronAPI : null);
+    if (api?.app?.getVersion) return await api.app.getVersion();
+  } catch {}
 
   // 2) ENV (CRA/Webpack)
   try {
@@ -182,13 +188,16 @@ export default function About() {
               >
                 {tr('about_contact', 'Contacto')}
               </Button>
-              <Button
-                variant="outlined"
-                href="https://"
-                target="_blank" rel="noreferrer"
-              >
-                {tr('about_website', 'Sitio web')}
-              </Button>
+              {/* Приховуємо кнопку сайту, якщо URL порожній */}
+              {Boolean('') && (
+                <Button
+                  variant="outlined"
+                  href=""
+                  target="_blank" rel="noreferrer"
+                >
+                  {tr('about_website', 'Sitio web')}
+                </Button>
+              )}
             </Stack>
           </Box>
 

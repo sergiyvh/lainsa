@@ -2,9 +2,9 @@
 // Налаштування: вибір мови + Резервна копія (експорт/імпорт .json)
 // Працює в Electron і в браузері (через file-saver).
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  Box, Paper, Typography, Button, Divider, Stack,
+  Box, Paper, Typography, Button, Stack,
   FormControl, InputLabel, Select, MenuItem,
   Table, TableBody, TableCell, TableHead, TableRow, Alert
 } from '@mui/material';
@@ -87,7 +87,7 @@ export default function Settings() {
       saveAs(blob, filename);
     } catch (err) {
       console.error(err);
-      alert(t('backup_error_save'));
+      alert(t('backup_error_save') || 'No se pudo guardar el archivo');
     }
   };
 
@@ -107,41 +107,41 @@ export default function Settings() {
       for (const [key, val] of entries) {
         await saveData(key, val);
       }
-      alert(t('import_success'));
+      alert(t('import_success') || 'Importación correcta');
     } catch (err) {
       console.error(err);
-      alert(t('import_error'));
+      alert(t('import_error') || 'No se pudo importar el archivo');
     }
   };
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>{t('nav_settings')}</Typography>
+      <Typography variant="h4" gutterBottom>{t('nav_settings') || 'Ajustes'}</Typography>
 
       {/* Мова інтерфейсу */}
       <Paper sx={{ p: 2, mb: 3, borderRadius: '12px' }}>
-        <Typography variant="h6" gutterBottom>{t('settings_lang_title')}</Typography>
+        <Typography variant="h6" gutterBottom>{t('settings_lang_title') || 'Idioma de la interfaz'}</Typography>
         <FormControl size="small" sx={{ minWidth: 200 }}>
-          <InputLabel>{t('lang_label')}</InputLabel>
-          <Select label={t('lang_label')} value={lang} onChange={(e) => setLang(e.target.value)}>
-            <MenuItem value="es">{t('lang_es')}</MenuItem>
-            <MenuItem value="uk">{t('lang_uk')}</MenuItem>
-            <MenuItem value="ca">{t('lang_ca')}</MenuItem>
-            <MenuItem value="en">{t('lang_en')}</MenuItem>
+          <InputLabel>{t('lang_label') || 'Idioma'}</InputLabel>
+          <Select label={t('lang_label') || 'Idioma'} value={lang} onChange={(e) => setLang(e.target.value)}>
+            <MenuItem value="es">{t('lang_es') || 'Español'}</MenuItem>
+            <MenuItem value="uk">{t('lang_uk') || 'Ucraniano'}</MenuItem>
+            <MenuItem value="ca">{t('lang_ca') || 'Catalán'}</MenuItem>
+            <MenuItem value="en">{t('lang_en') || 'Inglés'}</MenuItem>
           </Select>
         </FormControl>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          {t('settings_lang_note')}
+          {t('settings_lang_note') || 'Se aplica inmediatamente.'}
         </Typography>
       </Paper>
 
       {/* Бекап / Відновлення */}
       <Paper sx={{ p: 2, mb: 3, borderRadius: '12px' }}>
-        <Typography variant="h6" gutterBottom>{t('backup_title')}</Typography>
+        <Typography variant="h6" gutterBottom>{t('backup_title') || 'Copia de seguridad'}</Typography>
 
-        <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-          <Button variant="contained" onClick={handleBackup}>{t('backup_create')}</Button>
-          <Button variant="outlined" onClick={onPickRestore}>{t('backup_restore')}</Button>
+        <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap' }}>
+          <Button variant="contained" onClick={handleBackup}>{t('backup_create') || 'Exportar'}</Button>
+          <Button variant="outlined" onClick={onPickRestore}>{t('backup_restore') || 'Importar'}</Button>
           <input
             ref={fileRef}
             type="file"
@@ -152,15 +152,15 @@ export default function Settings() {
         </Stack>
 
         <Alert severity={envElectron ? 'success' : 'info'} sx={{ mb: 2 }}>
-          {t('environment')}: {envElectron ? t('environment_electron') : t('environment_web')}
+          {(t('environment') || 'Entorno') + ': ' + (envElectron ? (t('environment_electron') || 'Electron') : (t('environment_web') || 'Web'))}
         </Alert>
 
-        <Typography variant="subtitle1" gutterBottom>{t('data_preview')}</Typography>
+        <Typography variant="subtitle1" gutterBottom>{t('data_preview') || 'Datos a exportar'}</Typography>
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>{t('key')}</TableCell>
-              <TableCell align="right">{t('items')}</TableCell>
+              <TableCell>{t('key') || 'Clave'}</TableCell>
+              <TableCell align="right">{t('items') || 'Elementos'}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -172,14 +172,14 @@ export default function Settings() {
             ))}
             {!loading && preview.length === 0 && (
               <TableRow>
-                <TableCell colSpan={2}>{t('no_tasks')}</TableCell>
+                <TableCell colSpan={2}>{t('no_tasks') || 'Sin datos'}</TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
 
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-          {t('backup_note')}
+          {t('backup_note') || 'El archivo .json contiene tus datos; guárdalo en un lugar seguro.'}
         </Typography>
       </Paper>
     </Box>

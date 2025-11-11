@@ -1,9 +1,9 @@
 // preload.js
-const { contextBridge, ipcRenderer, app } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
   app: {
-    getVersion: () => Promise.resolve(app.getVersion()),
+    getVersion: () => ipcRenderer.invoke('app:getVersion'),
   }
 });
 

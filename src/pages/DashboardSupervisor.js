@@ -2,11 +2,16 @@
 // Дашборд супервізора: InfoWidget зверху, KPI-резюме та плитки на ключові сторінки.
 
 import React, { useEffect, useMemo, useState } from 'react';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import { Box, Paper, Typography, Grid, Button } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { getData } from '../services/storageService';
 import { useI18n, t } from '../i18n/i18n';
 import InfoWidget from '../components/InfoWidget';
+import pdfMake from 'pdfmake/build/pdfmake';
+import { vfs as pdfVfs } from 'pdfmake/build/vfs_fonts';
+pdfMake.vfs = pdfVfs;
 
 function toNum(x, d = 0) { const n = Number(x); return Number.isFinite(n) ? n : d; }
 function getRecordWeight(rec) { return rec?.weight != null ? toNum(rec.weight, 0) : (rec?.kg != null ? toNum(rec.kg, 0) : 0); }
@@ -56,6 +61,24 @@ export default function DashboardSupervisor() {
 
   const heading = useMemo(() => t('panel_supervisor'), [lang]);
 
+  const handleExportPdf = () => {
+    try {
+      const title = t('dashboard_report_title') || 'Informe del panel';
+      const now = new Date().toLocaleString();
+      const docDefinition = {
+        info: { title },
+        content: [
+          { text: title, style: 'title' },
+          { text: now, style: 'meta', margin: [0,0,0,12] },
+        ],
+        styles: { title: { fontSize: 16, bold: true }, meta: { fontSize: 9, color: '#666' } },
+        defaultStyle: { fontSize: 11 },
+        pageMargins: [24,24,24,28]
+      };
+      pdfMake.createPdf(docDefinition).download('dashboard.pdf');
+    } catch(e) { console.error(e); }
+  };
+
   return (
     <Box>
       {/* InfoWidget вгорі */}
@@ -66,6 +89,14 @@ export default function DashboardSupervisor() {
         <Typography variant="h4" sx={{ mb: 1 }}>
           {heading} {user?.username ? `— ${user.username}` : ''}
         </Typography>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+          <Button component={RouterLink} to="/incidents" variant="contained" startIcon={<ReportProblemIcon />}>
+            {t('btn_incidents')}
+          </Button>
+          <Button variant="outlined" startIcon={<PictureAsPdfIcon />} onClick={handleExportPdf}>
+            {t('btn_export_pdf')}
+          </Button>
+        </Box>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>
             <Typography variant="subtitle2" color="text.secondary">{t('kpi_avg')}</Typography>

@@ -53,6 +53,9 @@ export default function Layout({ children, user, onLogout }) {
   const [maintenanceMenuOpen, setMaintenanceMenuOpen] = useState(false);
   const [archiveMenuOpen, setArchiveMenuOpen] = useState(location.pathname.startsWith('/archive/'));
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const [incidentsMenuOpen, setIncidentsMenuOpen] = useState(
+    location.pathname.startsWith('/incidents/')
+  );
 
   // показувати Drawer тільки якщо це не auth-сторінка і користувач увійшов
   const AUTH_PREFIXES = ['/login', '/register', '/signup', '/new-user', '/auth', '/reset-password'];
@@ -98,6 +101,12 @@ export default function Layout({ children, user, onLogout }) {
     { text: t('nav_equipment'), icon: <HandymanIcon />, path: '/equipment' },
     { text: t('nav_maintenance_log'), icon: <EngineeringIcon />, path: '/maintenance' },
     { text: t('nav_maintenance_calendar'), icon: <CalendarMonthIcon />, path: '/maintenance-calendar' },
+  ];
+
+  // ВАЖЛИВО: використовуємо tt(...) з фолбеками, щоб не бачити "menu.incidents*"
+  const incidentsSubMenuItems = [
+    { text: tt('menu.incidents_create', 'Створити інцидент'), icon: <ReportGmailerrorredIcon />, path: '/incidents/create' },
+    { text: tt('menu.incidents_list', 'Список інцидентів'),   icon: <ReportGmailerrorredIcon />, path: '/incidents/list' }
   ];
 
   // Підпункти "Архів"
@@ -185,7 +194,6 @@ export default function Layout({ children, user, onLogout }) {
           className="no-print"
         >
           <Toolbar />
-          {/* Невеликий додатковий відступ знизу, але не обов'язковий тепер */}
           <Box sx={{ overflow: 'auto', paddingBottom: '24px' }}>
             <List>
               {/* Головні пункти */}
@@ -197,6 +205,31 @@ export default function Layout({ children, user, onLogout }) {
                   </ListItemButton>
                 </ListItem>
               ))}
+
+              {/* Група ІНЦИДЕНТИ */}
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => setIncidentsMenuOpen(o => !o)}>
+                  <ListItemIcon><ReportGmailerrorredIcon /></ListItemIcon>
+                  <ListItemText primary={tt('menu.incidents', 'Інциденти')} />
+                  {incidentsMenuOpen ? <ExpandLess /> : <ExpandMore />}
+                </ListItemButton>
+              </ListItem>
+              <Collapse in={incidentsMenuOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {incidentsSubMenuItems.map((item) => (
+                    <ListItemButton
+                      key={item.path}
+                      component={Link}
+                      to={item.path}
+                      sx={{ pl: 4 }}
+                      selected={location.pathname === item.path}
+                    >
+                      <ListItemIcon>{item.icon}</ListItemIcon>
+                      <ListItemText primary={item.text} />
+                    </ListItemButton>
+                  ))}
+                </List>
+              </Collapse>
 
               {/* Група АРХІВ */}
               <ListItem disablePadding>
@@ -342,7 +375,7 @@ export default function Layout({ children, user, onLogout }) {
         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           SVH Group UA
           <img src={DevLogo} alt="SVH Group Logo" style={{ height: '16px', verticalAlign: 'middle' }} />
-          para LAVANDERIA INSULAR SL (LAINSA)
+          LAVANDERIA INSULAR S.L. (LAINSA)
         </Typography>
         <Typography variant="caption" color="text.secondary">
           {t('brand')} &copy; 1970 - {currentYear}
